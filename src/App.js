@@ -9,7 +9,13 @@ const App = () => {
   const [usageCount, setUsageCount] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [selectValue, setSelectValue] = useState("add");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState({
+    hash: "",
+    from: "",
+    to: "",
+    value: 0,
+    gas: 0,
+  });
 
   useEffect(() => {
     if (window.ethereum) {
@@ -25,19 +31,44 @@ const App = () => {
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     const contract = new ethers.Contract(address, abi, signer);
+
     try {
       if (selectValue === "add") {
         const response = await contract.add(firstValue, secondValue);
-        setResult(response);
+        setResult({
+          hash: response.hash,
+          from: response.from,
+          to: response.to,
+          value: parseInt(response.value._hex),
+          gas: parseInt(response.gasPrice._hex),
+        });
       } else if (selectValue === "subtract") {
         const response = await contract.subtract(firstValue, secondValue);
-        setResult(response);
+        setResult({
+          hash: response.hash,
+          from: response.from,
+          to: response.to,
+          value: parseInt(response.value._hex),
+          gas: parseInt(response.gasPrice._hex),
+        });
       } else if (selectValue === "divide") {
         const response = await contract.divide(firstValue, secondValue);
-        setResult(response);
+        setResult({
+          hash: response.hash,
+          from: response.from,
+          to: response.to,
+          value: parseInt(response.value._hex),
+          gas: parseInt(response.gasPrice._hex),
+        });
       } else if (selectValue === "multiply") {
         const response = await contract.multiply(firstValue, secondValue);
-        setResult(response);
+        setResult({
+          hash: response.hash,
+          from: response.from,
+          to: response.to,
+          value: parseInt(response.value._hex),
+          gas: parseInt(response.gasPrice._hex),
+        });
       }
       const usage = await contract.usageCount();
       setUsageCount(parseInt(usage));
@@ -75,12 +106,15 @@ const App = () => {
           className="calculator_input"
         />
       </section>
-      <input
-        className="calculator_input"
-        placeholder="Result"
-        value={result}
-        disabled
-      />
+      {result.hash && (
+        <section className="calculator_result">
+          <p>Transaction hash: {result.hash}</p>
+          <p>From: {result.from}</p>
+          <p>To: {result.to}</p>
+          <p>Value: {result.value} ETH</p>
+          <p>Gas Price: {result.gas}</p>
+        </section>
+      )}
       <div>
         <button
           className="calculator_button"
